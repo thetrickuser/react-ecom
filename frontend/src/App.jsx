@@ -1,20 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import "./App.css";
 import SearchResults from "./SearchResults";
+import { fetchProducts } from "./store/productSlice";
 
 function App() {
-  const [products, setProducts] = useState([]);
+  const product = useSelector((state) => state.product);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
-      .then((json) => setProducts(json));
-  }, []);
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   return (
     <>
-    <SearchResults results={products} />
-    
+      {product.loading && <div>Loading...</div>}
+      {!product.loading && product.error && <div>Error: {product.error}</div>}
+      {!product.loading && product.products.length && (
+        <SearchResults results={product.products} />
+      )}
     </>
   );
 }
