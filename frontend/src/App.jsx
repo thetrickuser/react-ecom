@@ -11,7 +11,6 @@ function App() {
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-
   return (
     <>
       {product.loading && <div>Loading...</div>}

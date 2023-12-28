@@ -10,7 +10,6 @@ const SearchResults = ({ results }) => {
   const [productCategories, setProductCategories] = useState(["All"]);
 
   useEffect(() => {
-    console.log(results);
     let categories = new Set();
     results.forEach((item) => categories.add(item.category));
     categories = Array.from(categories);
@@ -33,15 +32,21 @@ const SearchResults = ({ results }) => {
   }, [results, dispatch]);
 
   const handleFilterChange = (filter, value) => {
-    console.log(filters);
-    if (filter === "category") {
-      dispatch(filterActions.categoryChanged(value));
-    } else if (filter === "minPrice") {
-      dispatch(filterActions.minPriceChanged(value));
-    } else if (filter === "maxPrice") {
-      dispatch(filterActions.maxPriceChanged(value));
-    } else if (filter === "rating") {
-      dispatch(filterActions.ratingChanged(value));
+    switch (filter) {
+      case "category":
+        dispatch(filterActions.categoryChanged(value));
+        break;
+      case "minPrice":
+        dispatch(filterActions.minPriceChanged(value));
+        break;
+      case "maxPrice":
+        dispatch(filterActions.maxPriceChanged(value));
+        break;
+      case "rating":
+        dispatch(filterActions.ratingChanged(value));
+        break;
+      default:
+        break;
     }
   };
 
@@ -65,6 +70,36 @@ const SearchResults = ({ results }) => {
 
     dispatch(filterActions.filteredProductsChanged(newProducts));
   }, [filters, dispatch, results]);
+
+  const handleSort = (sortType) => {
+    const sortedProducts = [...filteredProducts];
+    switch (sortType) {
+      case "price_l2h":
+        sortedProducts.sort((a, b) => {
+          return parseFloat(a.price) - parseFloat(b.price);
+        });
+        break;
+      case "price_h2l":
+        sortedProducts.sort((a, b) => {
+          return parseFloat(b.price) - parseFloat(a.price);
+        });
+        break;
+      case "rating_l2h":
+        sortedProducts.sort((a, b) => {
+          return parseFloat(a.rating.rate) - parseFloat(b.rating.rate);
+        });
+        break;
+      case "rating_h2l":
+        sortedProducts.sort((a, b) => {
+          return parseFloat(b.rating.rate) - parseFloat(a.rating.rate);
+        });
+        break;
+      default:
+        break;
+    }
+
+    dispatch(filterActions.filteredProductsChanged([...sortedProducts]));
+  };
 
   return (
     <div className="search">
@@ -116,6 +151,41 @@ const SearchResults = ({ results }) => {
               {item}
             </button>
           ))}
+        </div>
+      </div>
+      <div className="sort">
+        <span>Sort: </span>
+        <div
+          className="sort-option"
+          onClick={() => {
+            handleSort("price_l2h");
+          }}
+        >
+          Price - Low to High
+        </div>
+        <div
+          className="sort-option"
+          onClick={() => {
+            handleSort("price_h2l");
+          }}
+        >
+          Price - High to Low
+        </div>
+        <div
+          className="sort-option"
+          onClick={() => {
+            handleSort("rating_l2h");
+          }}
+        >
+          Rating - Low to High
+        </div>
+        <div
+          className="sort-option"
+          onClick={() => {
+            handleSort("rating_h2l");
+          }}
+        >
+          Rating - High to Low
         </div>
       </div>
       <div className="results">
