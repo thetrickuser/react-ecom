@@ -1,46 +1,16 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Product from "./Product";
 import PropTypes from "prop-types";
-
-const initialState = {
-  filteredProducts: [],
-  filters: {
-    price: { min: "", max: "" },
-    category: ["All"],
-    rating: "",
-  },
-  minPrice: "",
-  maxPrice: "",
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "SET_FILTERED_PRODUCTS":
-      return { ...state, filteredProducts: action.payload };
-    case "SET_FILTERS":
-      return { ...state, filters: action.payload };
-    case "SET_MIN_PRICE":
-      return { ...state, minPrice: action.payload };
-    case "SET_MAX_PRICE":
-      return { ...state, maxPrice: action.payload };
-    default:
-      return state;
-  }
-};
+import { filterActions } from "./store/filterSlice";
 
 const SearchResults = ({ results }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const { filteredProducts, filters, minPrice, maxPrice } = state;
+  const { filteredProducts, filters } = useSelector((state) => state.filter);
+  const dispatch = useDispatch();
+  const [productCategories, setProductCategories] = useState(["All"]);
 
   useEffect(() => {
-    const filtered = results.filter(
-      (item) => item.price >= minPrice && item.price <= maxPrice
-    );
-    dispatch({ type: "SET_FILTERED_PRODUCTS", payload: filtered });
-  }, [minPrice, maxPrice, results]);
-
-  useEffect(() => {
-    console.log(results)
+    console.log(results);
     let categories = new Set();
     results.forEach((item) => categories.add(item.category));
     categories = Array.from(categories);
@@ -55,53 +25,57 @@ const SearchResults = ({ results }) => {
       { minPrice: Infinity, maxPrice: -Infinity }
     );
 
-    dispatch({
-      type: "SET_FILTERS",
-      payload: {
-        price: { min: minPrice, max: maxPrice },
-        category: ["All", ...categories],
-      },
-    });
-    dispatch({ type: "SET_MIN_PRICE", payload: filters.price.min });
-    dispatch({ type: "SET_MAX_PRICE", payload: filters.price.max });
-  }, [results]);
+    setProductCategories(["All", ...categories]);
+    dispatch(filterActions.maxPriceChanged(maxPrice));
+    dispatch(filterActions.minPriceChanged(minPrice));
+    dispatch(filterActions.ratingChanged(0));
+    dispatch(filterActions.filteredProductsChanged(results));
+  }, [results, dispatch]);
 
-  const handleCategoryChange = (filterCategory) => {
-    if (filterCategory === "All") {
-      dispatch({ type: "SET_FILTERED_PRODUCTS", payload: results });
-      dispatch({ type: "SET_MIN_PRICE", payload: filters.price.min });
-      dispatch({ type: "SET_MAX_PRICE", payload: filters.price.max });
-    } else {
-      const filtered = results.filter(
-        (item) => item.category === filterCategory
-      );
-      dispatch({ type: "SET_FILTERED_PRODUCTS", payload: filtered });
+  const handleFilterChange = (filter, value) => {
+    console.log(filters);
+    if (filter === "category") {
+      dispatch(filterActions.categoryChanged(value));
+    } else if (filter === "minPrice") {
+      dispatch(filterActions.minPriceChanged(value));
+    } else if (filter === "maxPrice") {
+      dispatch(filterActions.maxPriceChanged(value));
+    } else if (filter === "rating") {
+      dispatch(filterActions.ratingChanged(value));
     }
   };
 
-  const handleMaxPriceChange = (price) => {
-    dispatch({ type: "SET_MAX_PRICE", payload: price });
-  };
+  useEffect(() => {
+    const newProducts = results.filter((item) => {
+      if (filters.category === "All") {
+        return (
+          item.price >= filters.minPrice &&
+          item.price <= filters.maxPrice &&
+          item.rating.rate >= filters.rating
+        );
+      } else {
+        return (
+          item.category === filters.category &&
+          item.price >= filters.minPrice &&
+          item.price <= filters.maxPrice &&
+          item.rating.rate >= filters.rating
+        );
+      }
+    });
 
-  const handleMinPriceChange = (price) => {
-    dispatch({ type: "SET_MIN_PRICE", payload: price });
-  };
-
-  const handleRatingChange = (rating) => {
-    const filtered = results.filter((item) => Number(item.rating.rate) >= rating);
-    dispatch({ type: "SET_FILTERED_PRODUCTS", payload: filtered });
-  };
+    dispatch(filterActions.filteredProductsChanged(newProducts));
+  }, [filters, dispatch, results]);
 
   return (
     <div className="search">
       <div className="filters">
         <div className="filter">
           <p>Category</p>
-          {filters.category.map((item) => (
+          {productCategories.map((item) => (
             <button
               key={item}
               onClick={() => {
-                handleCategoryChange(item);
+                handleFilterChange("category", item);
               }}
               value={item}
             >
@@ -115,25 +89,30 @@ const SearchResults = ({ results }) => {
           <input
             name="min_price"
             type="number"
-            value={minPrice}
+            value={filters.minPrice}
             onChange={(event) => {
-              handleMinPriceChange(event.target.value);
+              handleFilterChange("minPrice", event.target.value);
             }}
           ></input>
           <span>Max: </span>
           <input
             name="max_price"
             type="number"
-            value={maxPrice}
+            value={filters.maxPrice}
             onChange={(event) => {
-              handleMaxPriceChange(event.target.value);
+              handleFilterChange("maxPrice", event.target.value);
             }}
           ></input>
         </div>
         <div className="filter">
           <p>Rating</p>
           {[1, 2, 3, 4, 5].map((item) => (
-            <button key={item} onClick={() => handleRatingChange(item)}>
+            <button
+              key={item}
+              onClick={() => {
+                handleFilterChange("rating", item);
+              }}
+            >
               {item}
             </button>
           ))}
