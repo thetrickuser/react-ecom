@@ -5,7 +5,7 @@ import SearchResults from "./SearchResults";
 import { fetchProducts } from "./store/productSlice";
 //hi
 function App() {
-  const product = useSelector((state) => state.product);
+  const { loading, products, error } = useSelector((state) => state.product);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -13,11 +13,9 @@ function App() {
   }, [dispatch]);
   return (
     <>
-      {product.loading && <div>Loading...</div>}
-      {!product.loading && product.error && <div>Error: {product.error}</div>}
-      {!product.loading && product.products.length && (
-        <SearchResults results={product.products} />
-      )}
+      {loading && <div>Loading...</div>}
+      {!loading && error && <div>Error: {error}</div>}
+      {!loading && products.length && <SearchResults results={products} />}
     </>
   );
 }
