@@ -14,19 +14,19 @@ const filterSlice = createSlice({
   name: "filter",
   initialState,
   reducers: {
-    categoryChanged: (state, action) => {
+    changeCategory: (state, action) => {
       state.filters.category = action.payload;
     },
-    minPriceChanged: (state, action) => {
+    changeMinPrice: (state, action) => {
       state.filters.minPrice = action.payload;
     },
-    maxPriceChanged: (state, action) => {
+    changeMaxPrice: (state, action) => {
       state.filters.maxPrice = action.payload;
     },
-    ratingChanged: (state, action) => {
+    changeRating: (state, action) => {
       state.filters.rating = action.payload;
     },
-    filteredProductsChanged: (state, action) => {
+    modifyFilteredProducts: (state, action) => {
         state.filteredProducts = action.payload 
     }
   },

@@ -4,6 +4,7 @@ import Product from "./Product";
 import PropTypes from "prop-types";
 import { filterActions } from "./store/filterSlice";
 import Filters from "./Filters";
+import CartIcon from "./CartIcon";
 
 const SearchResults = ({ results }) => {
   const { filteredProducts, filters } = useSelector((state) => state.filter);
@@ -27,7 +28,7 @@ const SearchResults = ({ results }) => {
       }
     });
 
-    dispatch(filterActions.filteredProductsChanged(newProducts));
+    dispatch(filterActions.modifyFilteredProducts(newProducts));
   }, [filters, dispatch, results]);
 
   const handleSort = (sortType) => {
@@ -57,10 +58,12 @@ const SearchResults = ({ results }) => {
         break;
     }
 
-    dispatch(filterActions.filteredProductsChanged([...sortedProducts]));
+    dispatch(filterActions.modifyFilteredProducts([...sortedProducts]));
   };
 
   return (
+    <>
+    <CartIcon/>
     <div className="search">
       <Filters />
       <div className="sort">
@@ -100,10 +103,13 @@ const SearchResults = ({ results }) => {
       </div>
       <div className="results">
         {filteredProducts.map((item) => (
-          <Product data={item} key={item.id} />
+          <div key={item.id}>
+          <Product data={item} />
+          </div>
         ))}
       </div>
     </div>
+    </>
   );
 };
 

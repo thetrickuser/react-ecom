@@ -23,25 +23,25 @@ const Filters = () => {
         );
     
         setProductCategories(["All", ...categories]);
-        dispatch(filterActions.maxPriceChanged(maxPrice));
-        dispatch(filterActions.minPriceChanged(minPrice));
-        dispatch(filterActions.ratingChanged(0));
+        dispatch(filterActions.changeMaxPrice(maxPrice));
+        dispatch(filterActions.changeMinPrice(minPrice));
+        dispatch(filterActions.changeRating(0));
         // dispatch(filterActions.filteredProductsChanged(results));
       }, [dispatch, products]);
 
       const handleFilterChange = (filter, value) => {
         switch (filter) {
           case "category":
-            dispatch(filterActions.categoryChanged(value));
+            dispatch(filterActions.changeCategory(value));
             break;
           case "minPrice":
-            dispatch(filterActions.minPriceChanged(value));
+            dispatch(filterActions.changeMinPrice(value));
             break;
           case "maxPrice":
-            dispatch(filterActions.maxPriceChanged(value));
+            dispatch(filterActions.changeMaxPrice(value));
             break;
           case "rating":
-            dispatch(filterActions.ratingChanged(value));
+            dispatch(filterActions.changeRating(value));
             break;
           default:
             break;
