@@ -3,12 +3,19 @@ import { cartActions } from "./store/cartSlice";
 import { useState, useEffect } from "react";
 
 const ProuductActions = ({productData}) => {
-  const [productCount, setProductCount] = useState(0);
   const dispatch = useDispatch();
-  const { items } = useSelector((state) => state.cart);
+  const { items } = useSelector((state) => state.cart);  
+  const [productCount, setProductCount] = useState(0);
+
   useEffect(() => {
-    setProductCount(items.filter((item) => item.id === Number(productData.id)).length);
-  },[items,productData])
+    const {count} = items[productData.id];    
+    if (count === undefined) {
+      setProductCount(0);
+    } else {
+      setProductCount(count);
+    }
+  }, [items, productData.id])
+
   const handleAddItem = (item) => {
     dispatch(cartActions.addItem(item));
   };
