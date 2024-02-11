@@ -8,12 +8,8 @@ const ProuductActions = ({productData}) => {
   const [productCount, setProductCount] = useState(0);
 
   useEffect(() => {
-    const {count} = items[productData.id];    
-    if (count === undefined) {
-      setProductCount(0);
-    } else {
-      setProductCount(count);
-    }
+    const count = items[productData.id] ? items[productData.id].count : 0;    
+    setProductCount(count)
   }, [items, productData.id])
 
   const handleAddItem = (item) => {
